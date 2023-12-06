@@ -33,7 +33,7 @@ runs:
         touch rebuild_and_check_state.sh
         cat "${{ github.action_path }}/rebuild_and_check_state.sh" > rebuild_and_check_state.sh
     - name: Get project ID
-      id: project-id
+      id: get-project-id
       shell: bash
       run: |
         json=$(curl -u "${{ inputs.username }}:${{ inputs.password }}" -s ${{ inputs.base-url }}/api/projects)
@@ -42,10 +42,10 @@ runs:
         echo "Using project id: $project_id"
         cat "$GITHUB_OUTPUT"
     - name: Get container service ID
-      id: container-service-id
+      id: get-container-service-id
       shell: bash
       run: |
-        json=$(curl -u "${{ inputs.username }}:${{ inputs.password }}" -s "${{ inputs.base-url }}/api/container_services/${{ steps.project-id.outputs.project_id }}/containers")
+        json=$(curl -u "${{ inputs.username }}:${{ inputs.password }}" -s "${{ inputs.base-url }}/api/projects/${{ steps.get-project-id.outputs.project_id }}/services")
         echo "container_service_id=$(echo "$json" | jq '.container_services[] | select(.label == "${{ inputs.container-service-name }}") | .id')" >> "$GITHUB_OUTPUT"
     - name: Run Bash Script
       shell: bash
@@ -57,4 +57,4 @@ runs:
           --timeout "${{ inputs.timeout }}" \
           --username "${{ inputs.username }}" \
           --password "${{ inputs.password }}" \
-          --container-id "${{ steps.container-service-id.outputs.container_service_id }}"
+          --container-id "${{ steps.get-container-service-id.outputs.container_service_id }}"
