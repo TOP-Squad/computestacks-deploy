@@ -1,0 +1,35 @@
+name: 'ComputeStacks deploy action'
+description: 'Rebuild a container service and check online state'
+inputs:
+  base-url:
+    description: 'The hostname/protocol for the container API'
+    required: true
+  poll-interval:
+    description: 'Polling interval in seconds'
+    required: true
+  timeout:
+    description: 'Timeout in seconds'
+    required: true
+  username:
+    description: 'Username for API authentication'
+    required: true
+  password:
+    description: 'Password for API authentication'
+    required: true
+  container-id:
+    description: 'Temp container id'
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Run Bash Script
+      shell: bash
+      run: |
+        chmod +x ${{ github.workspace }}/rebuild_and_check_state.sh
+        ${{ github.workspace }}/rebuild_and_check_state.sh \
+          --base-url "${{ inputs.base-url }}" \
+          --poll-interval "${{ inputs.poll-interval }}" \
+          --timeout "${{ inputs.timeout }}" \
+          --username "${{ inputs.username }}" \
+          --password "${{ inputs.password }}" \
+          --container-id $${{ inputs.container-id }}
