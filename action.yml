@@ -1,6 +1,12 @@
 name: 'ComputeStacks deploy action'
 description: 'Rebuild a container service and check online state'
 inputs:
+  project-name:
+    description: ''
+    required: true
+  container-service-name:
+    description: ''
+    required: true
   base-url:
     description: 'The hostname/protocol for the container API'
     required: true
@@ -16,9 +22,6 @@ inputs:
   password:
     description: 'Password for API authentication'
     required: true
-  container-id:
-    description: 'Temp container id'
-    required: true
 runs:
   using: "composite"
   steps:
@@ -29,14 +32,26 @@ runs:
       run: |
         touch rebuild_and_check_state.sh
         cat "${{ github.action_path }}/rebuild_and_check_state.sh" > rebuild_and_check_state.sh
+    - name: Get project ID
+      id: project-id
+      shell: bash
+      run: |
+        json=$(curl -s ${{ inputs.base-url }}/api/projects)
+        echo "PROJECT_ID=$(echo "$json" | jq -r '.projects[] | select(.name == "${{ inputs.project-name }}") | .id')" >> $GITHUB_OUTPUT
+    - name: Get container service ID
+      id: container-service-id
+      shell: bash
+      run: |
+        json=$(curl -s ${{ inputs.base-url }}/api/container_services/${{ steps.project-id.outputs.PROJECT_ID }}/containers)
+        echo "CONTAINER_SERVICE_ID=$(echo "$json" | jq '.container_services[] | select(.label == "${{ inputs.container-service-name }}") | .id')" >> $GITHUB_OUTPUT
     - name: Run Bash Script
       shell: bash
       run: |
-        chmod +x ${{ github.workspace }}/rebuild_and_check_state.sh
-        ${{ github.workspace }}/rebuild_and_check_state.sh \
+        chmod +x ./rebuild_and_check_state.sh
+        ./rebuild_and_check_state.sh \
           --base-url "${{ inputs.base-url }}" \
           --poll-interval "${{ inputs.poll-interval }}" \
           --timeout "${{ inputs.timeout }}" \
           --username "${{ inputs.username }}" \
           --password "${{ inputs.password }}" \
-          --container-id ${{ inputs.container-id }}
+          --container-id ${{ steps.container-service-id.outputs.CONTAINER_SERVICE_ID }}
