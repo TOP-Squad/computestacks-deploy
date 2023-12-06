@@ -37,13 +37,14 @@ runs:
       shell: bash
       run: |
         json=$(curl -s ${{ inputs.base-url }}/api/projects)
-        echo "PROJECT_ID=$(echo "$json" | jq -r '.projects[] | select(.name == "${{ inputs.project-name }}") | .id')" >> $GITHUB_OUTPUT
+        echo "project_id=$(echo "$json" | jq -r '.projects[] | select(.name == "${{ inputs.project-name }}") | .id')" >> "$GITHUB_ENV"
+        echo "Using project id: ${project_id}"
     - name: Get container service ID
       id: container-service-id
       shell: bash
       run: |
-        json=$(curl -s ${{ inputs.base-url }}/api/container_services/${{ steps.project-id.outputs.PROJECT_ID }}/containers)
-        echo "CONTAINER_SERVICE_ID=$(echo "$json" | jq '.container_services[] | select(.label == "${{ inputs.container-service-name }}") | .id')" >> $GITHUB_OUTPUT
+        json=$(curl -s "${{ inputs.base-url }}/api/container_services/$project_id/containers")
+        echo "container_service_id=$(echo "$json" | jq '.container_services[] | select(.label == "${{ inputs.container-service-name }}") | .id')" >> "$GITHUB_ENV"
     - name: Run Bash Script
       shell: bash
       run: |
@@ -54,4 +55,4 @@ runs:
           --timeout "${{ inputs.timeout }}" \
           --username "${{ inputs.username }}" \
           --password "${{ inputs.password }}" \
-          --container-id ${{ steps.container-service-id.outputs.CONTAINER_SERVICE_ID }}
+          --container-id $container_service_id
