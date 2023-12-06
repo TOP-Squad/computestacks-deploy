@@ -36,14 +36,14 @@ runs:
       id: project-id
       shell: bash
       run: |
-        json=$(curl -s ${{ inputs.base-url }}/api/projects)
+        json=$(curl -u "${{ inputs.username }}:${{ inputs.password }}" -s ${{ inputs.base-url }}/api/projects)
         echo "project_id=$(echo "$json" | jq -r '.projects[] | select(.name == "${{ inputs.project-name }}") | .id')" >> "$GITHUB_ENV"
         echo "Using project id: ${project_id}"
     - name: Get container service ID
       id: container-service-id
       shell: bash
       run: |
-        json=$(curl -s "${{ inputs.base-url }}/api/container_services/$project_id/containers")
+        json=$(curl -u "${{ inputs.username }}:${{ inputs.password }}" -s "${{ inputs.base-url }}/api/container_services/$project_id/containers")
         echo "container_service_id=$(echo "$json" | jq '.container_services[] | select(.label == "${{ inputs.container-service-name }}") | .id')" >> "$GITHUB_ENV"
     - name: Run Bash Script
       shell: bash
