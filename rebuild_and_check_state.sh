@@ -39,7 +39,7 @@ done
 rebuild_url="$base_url/api/container_services/$container_id/power/rebuild"
 status_url="$base_url/api/container_services/$container_id"
 poll_interval="${poll_interval:-1}"
-timeout="${timeout:-160}"
+timeout="${timeout:-120}"
 
 # Function to perform the rebuild action
 perform_rebuild() {
