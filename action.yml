@@ -22,6 +22,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Make script available
+      shell: bash
+      run: |
+        touch rebuild_and_check_state.sh
+        cat "${{ github.action_path }}/rebuild_and_check_state.sh" > rebuild_and_check_state.sh
     - name: Run Bash Script
       shell: bash
       run: |
