@@ -2,10 +2,10 @@ name: 'ComputeStacks deploy action'
 description: 'Rebuild a container service and check online state'
 inputs:
   project-name:
-    description: ''
+    description: 'The name of the project associated to the account provided'
     required: true
   container-service-name:
-    description: ''
+    description: 'The name of the container service within the given project name'
     required: true
   base-url:
     description: 'The hostname/protocol for the container API'
@@ -37,9 +37,10 @@ runs:
       shell: bash
       run: |
         json=$(curl -u "${{ inputs.username }}:${{ inputs.password }}" -s ${{ inputs.base-url }}/api/projects)
+        echo "json=$json"
         echo "project_id=$(echo "$json" | jq -r '.projects[] | select(.name == "${{ inputs.project-name }}") | .id')" >> "$GITHUB_OUTPUT"
         echo "Using project id: $project_id"
-        echo "$GITHUB_OUTPUT"
+        cat "$GITHUB_OUTPUT"
     - name: Get container service ID
       id: container-service-id
       shell: bash
