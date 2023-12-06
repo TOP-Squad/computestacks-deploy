@@ -39,4 +39,4 @@ runs:
           --timeout "${{ inputs.timeout }}" \
           --username "${{ inputs.username }}" \
           --password "${{ inputs.password }}" \
-          --container-id $${{ inputs.container-id }}
+          --container-id ${{ inputs.container-id }}
